@@ -25,6 +25,9 @@ public class TrackMaker : MonoBehaviour
     float m_verticalComp;
 
     [SerializeField]
+    Transform car;
+
+    [SerializeField]
     MeshExtruder m_roadPrefab;
 
     void Start()
@@ -67,6 +70,9 @@ public class TrackMaker : MonoBehaviour
         roadSections[0].m_flag.SetActive(true);
 
         transform.localScale = Vector3.one * 5;
+        car.gameObject.SetActive(true);
+        car.position = roadSections[0].transform.position + (Vector3.up * 3);
+        car.LookAt(roadSections[1].transform.position);
     }
 
     #region line generation
