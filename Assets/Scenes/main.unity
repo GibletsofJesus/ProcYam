@@ -273,11 +273,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_lr: {fileID: 204104750}
   m_lr2: {fileID: 2092788857}
-  noise: 3
+  noise: 5
   noiseIterations: 4
   smoothness: 25
-  m_verticalSinFrequency: 3
-  m_verticalComp: 3
+  m_verticalSinFrequency: 4
+  m_verticalComp: 2
   m_roadPrefab: {fileID: 114385344817258038, guid: 4ebe2bfa3476821498a86db79ba3be46,
     type: 2}
 --- !u!4 &262776643

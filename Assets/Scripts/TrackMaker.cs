@@ -37,6 +37,7 @@ public class TrackMaker : MonoBehaviour
 
     public IEnumerator  CreateTrackMesh()
     {
+        transform.localScale = Vector3.one;
         foreach (MeshExtruder i in roadSections)
         {
             Destroy(i.gameObject);
@@ -60,10 +61,12 @@ public class TrackMaker : MonoBehaviour
                 
         }
 
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1);
         roadSections[roadSections.Count - 1].hotFix();
 
         roadSections[0].m_flag.SetActive(true);
+
+        transform.localScale = Vector3.one * 5;
     }
 
     #region line generation

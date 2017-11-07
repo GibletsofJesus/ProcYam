@@ -26,8 +26,16 @@ public class TrackCamera : MonoBehaviour
 
             Vector3 start = m_lr.GetPosition(CorrectPosition(hi - 1));
                             
-            transform.position = Vector3.Lerp(start, m_lr.GetPosition(hi), lerpo % 1) + (Vector3.up * 1.5f);
-            transform.LookAt(Vector3.Lerp(m_lr.GetPosition(CorrectPosition(hi)) + (Vector3.up * 1f), m_lr.GetPosition(CorrectPosition(hi + 1)) + (Vector3.up * 1f), lerpo % 1));
+
+            Vector3 position = Vector3.Lerp(start, m_lr.GetPosition(hi), lerpo % 1) + (Vector3.up * 1.5f);
+            Vector3 lookAtMe = Vector3.Lerp(
+                                   m_lr.GetPosition(CorrectPosition(hi)) + (Vector3.up * 1f), 
+                                   m_lr.GetPosition(CorrectPosition(hi + 1)) + (Vector3.up * 1f),
+                                   lerpo % 1); 
+            lookAtMe *= m_lr.transform.lossyScale.x;
+
+            transform.position = position * m_lr.transform.lossyScale.x;
+            transform.LookAt(lookAtMe);
         }
     }
 
