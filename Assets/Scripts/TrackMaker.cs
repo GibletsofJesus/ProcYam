@@ -55,17 +55,22 @@ public class TrackMaker : MonoBehaviour
             float angle = Mathf.Atan2(pointVector.x, pointVector.z) * Mathf.Rad2Deg;
 
             MeshExtruder newME = Instantiate(m_roadPrefab, points[i], Quaternion.Euler(-90, 0, angle), transform);
+            newME.width = 1 + Mathf.Sin(
+                (2f * 4f * Mathf.PI)
+                * ((float)i / (float)m_lr.positionCount));
+
             if (roadSections.Count > 0)
                 roadSections[roadSections.Count - 1].NextSection = newME;
             
             roadSections.Add(newME);
             if (i > m_lr.positionCount - 2)
-                roadSections[roadSections.Count - 1].NextSection = roadSections[0];
-                
+                roadSections[roadSections.Count - 1].NextSection = roadSections[0];                
         }
 
+        RandomiseColours(Random.value);
+
         yield return new WaitForSeconds(1);
-        roadSections[roadSections.Count - 1].hotFix();
+        roadSections[roadSections.Count - 1].AddFinishLineTexture();
 
         roadSections[0].m_flag.SetActive(true);
 
@@ -75,21 +80,59 @@ public class TrackMaker : MonoBehaviour
         car.LookAt(roadSections[1].transform.position);
     }
 
+    #region colours
+
+    public  void RandomiseColours(float r)
+    {
+        for (int i = 0; i < roadSections.Count - 2; i++)
+        {
+            MeshExtruder m = roadSections[i];
+            RandomiseRendererColour(m.m_roadRenderer, r);
+            RandomiseRendererColour(m.m_barrierRendererA, r);
+            RandomiseRendererColour(m.m_barrierRendererB, r);
+            RandomiseRendererColour(m.m_cubeRenderer, r);
+        }
+    }
+
+    void RandomiseRendererColour(MeshRenderer _renderer, float r)
+    {
+        Texture2D tex = _renderer.material.mainTexture as Texture2D;
+        //Texture2D tex = new Texture2D(original.width, original.height);
+        //tex.filterMode = FilterMode.Point;
+
+        for (int x = 0; x < tex.width; x++)
+        {
+            for (int y = 0; y < tex.height; y++)
+            {
+                Color col = tex.GetPixel(x, y);
+                float hue, sat, val;
+                Color.RGBToHSV(col, out hue, out sat, out val);
+
+                hue = r;
+                tex.SetPixel(x, y, Color.HSVToRGB(hue, sat, val));
+            } 
+        }
+        tex.Apply();
+        _renderer.material.mainTexture = tex;
+    }
+
+    #endregion
+
     #region line generation
 
     public void GenerateTrack()
     {
         #region Generate points
         //How many points?
-        int pointCount = Random.Range(5, 10);
+        int pointCount = Random.Range(10, 15);
 
         List<Vector3> points = new List<Vector3>();
         for (int i = 0; i < pointCount * 2; i++)
         {
             points.Add(new Vector3(
-                    Random.Range(0, 100) - 50,
+                    Random.Range(0, 125) - 66,
                     0,//  Random.Range(0, 10) - 5,
-                    Random.Range(0, 100) - 50
+                    Random.Range(0, 150) - 75
                 ));
             Debug.DrawLine(points[i], points[i] + Vector3.up, Color.red, 3);
         }
@@ -256,6 +299,10 @@ public class TrackMakerEditorButtons :Editor
         {
             it.GenerateTrack();
             it.StartCoroutine(it.CreateTrackMesh());
+        }
+        if (GUILayout.Button("Randomise colours"))
+        {
+            it.RandomiseColours(Random.value);
         }
     }
 }

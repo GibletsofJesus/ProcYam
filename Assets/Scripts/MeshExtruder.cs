@@ -7,10 +7,11 @@ public class MeshExtruder : MonoBehaviour
     [SerializeField]
     MeshFilter m_roadMesh, m_barrierMeshA, m_barrierMeshB, m_cubeMesh;
     public GameObject m_flag;
-    [SerializeField]
-    MeshRenderer m_roadRenderer;
+    public MeshRenderer m_roadRenderer, m_barrierRendererA, m_barrierRendererB, m_cubeRenderer;
     [SerializeField]
     Material finishMaterial;
+
+    public float width = 1;
 
     public MeshExtruder NextSection;
     public float m_extrusionDistance;
@@ -27,6 +28,8 @@ public class MeshExtruder : MonoBehaviour
         m_barrierBMatrix = Matrix4x4.TRS(m_barrierMeshB.transform.position, m_barrierMeshB.transform.rotation, m_barrierMeshB.transform.lossyScale);
         m_cubeMatrix = Matrix4x4.TRS(m_cubeMesh.transform.position, m_cubeMesh.transform.rotation, m_cubeMesh.transform.lossyScale);
 
+        StretchRoadMesh();
+
         GetRoadVertsInWorldSpace(m_roadMesh.mesh);
         //Left
         GetBarrierVertsInWorldSpace(m_barrierMeshA);
@@ -38,11 +41,11 @@ public class MeshExtruder : MonoBehaviour
         m_roadRenderer.material.mainTextureScale = new Vector2(1, (1 / m_extrusionDistance) * 25);
     }
 
-    public void hotFix()
+    public void AddFinishLineTexture()
     {
-        m_roadRenderer.material = finishMaterial;
-        m_roadRenderer.material.mainTextureScale = new Vector2(0.3f, 0.3f);
-        m_roadRenderer.material.mainTextureOffset = new Vector2(0.3f, 0);
+        m_roadRenderer.sharedMaterial = finishMaterial;
+        m_roadRenderer.sharedMaterial.mainTextureScale = new Vector2(0.3f, 0.3f);
+        m_roadRenderer.sharedMaterial.mainTextureOffset = new Vector2(0.3f, 0);
     }
 
     void DoTheLowerBit()
@@ -196,7 +199,6 @@ public class MeshExtruder : MonoBehaviour
 
     void Update()
     {
-
         if (!joined && NextSection)
         {
             if (NextSection.m_roadVertsWS[3] != Vector3.zero)
@@ -236,10 +238,22 @@ public class MeshExtruder : MonoBehaviour
         {
             m_roadVertsWS[i] = m_roadMatrix.MultiplyPoint3x4(verts[i]);
         }
-        _mesh.SetVertices(new List<Vector3>(verts));
-        _mesh.RecalculateNormals();
-        _mesh.RecalculateBounds();
-        _mesh.RecalculateTangents();
+    }
+
+    void StretchRoadMesh()
+    {
+        Vector3[] verts;
+        verts = m_roadMesh.mesh.vertices;
+        for (int i = 0; i < verts.Length; i++)
+        {
+            if (width > 1)
+                verts[i].x = width * (i % 2 == 0 ? 1f : -1f);
+            m_roadVertsWS[i] = m_roadMatrix.MultiplyPoint3x4(verts[i]);
+        }
+        m_roadMesh.mesh.SetVertices(new List<Vector3>(verts));
+        m_roadMesh.mesh.RecalculateNormals();
+        m_roadMesh.mesh.RecalculateBounds();
+        m_roadMesh.mesh.RecalculateTangents();
     }
 
     void GetBarrierVertsInWorldSpace(MeshFilter _mesh)
@@ -251,33 +265,23 @@ public class MeshExtruder : MonoBehaviour
         {
             if (_mesh.transform.localScale.x > 0)
             {
+                if (width > 1)
+                    verts[i].x -= width - 1;
                 //A
                 m_barrierAVertsWS[i] = m_barrierAMatrix.MultiplyPoint3x4(verts[i]);
             }
             else
             {
+                if (width > 1)
+                    verts[i].x -= width - 1;
                 //B
                 m_barrierBVertsWS[i] = m_barrierBMatrix.MultiplyPoint3x4(verts[i]);
             }
         }
-    }
-
-    void RotateRoadMesh(Mesh _mesh, Vector3 _pivot, float _angle)
-    {
-        Vector3[] verts;
-        verts = _mesh.vertices;
-        for (int i = 0; i < verts.Length; i++)
-        {
-            if (verts[i].y == -1)
-            {
-                verts[i] = Quaternion.AngleAxis(-_angle, Vector3.forward) * verts[i];
-                //do a thing
-            }
-        }
-        _mesh.SetVertices(new List<Vector3>(verts));
-        _mesh.RecalculateNormals();
-        _mesh.RecalculateBounds();
-        _mesh.RecalculateTangents();
+        _mesh.mesh.SetVertices(new List<Vector3>(verts));
+        _mesh.mesh.RecalculateNormals();
+        _mesh.mesh.RecalculateBounds();
+        _mesh.mesh.RecalculateTangents();
     }
 
     #endregion

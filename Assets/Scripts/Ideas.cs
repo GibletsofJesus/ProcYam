@@ -6,6 +6,7 @@ public class Ideas : MonoBehaviour
 {
     public static int count;
 
+    public  static bool gen;
     //Let's say we have a line renderer...
     [SerializeField]
     LineRenderer m_lr;
@@ -66,6 +67,8 @@ public class Ideas : MonoBehaviour
         }
     }
 
+    int camIndex = 0;
+
     IEnumerator DoALine()
     {
         if (count < 10)
@@ -77,44 +80,53 @@ public class Ideas : MonoBehaviour
             }
             copy.name = "copy";
         }
-
-        bool gen = true;
+        gen = true;
         float timeTraking = 0;
-        while (gen)
+        while (true)
         {
-            timeTraking += Time.deltaTime * 0.5f;
-            //For each step, decide what direction to move the line along
             Vector3[] points = new Vector3[m_lr.positionCount];
             m_lr.GetPositions(points);
             List<Vector3> newPoints = new List<Vector3>(points);
+            if (gen)
+            {
+                timeTraking += Time.deltaTime * 0.5f;
+                //For each step, decide what direction to move the line along
 
-            newPoints.Add(points[points.Length - 1] +
-                (Vector3.left * Mathf.Sin(timeTraking * m_mulutipliers[0])) +
-                (Vector3.up * Mathf.Cos(timeTraking * m_mulutipliers[1])) +
-                (Vector3.back * Mathf.Cos(timeTraking * m_mulutipliers[2])) +
-                (Vector3.right * Mathf.Sin(timeTraking * m_mulutipliers[3])));
+                newPoints.Add(points[points.Length - 1] +
+                    (Vector3.left * Mathf.Sin(timeTraking * m_mulutipliers[0])) +
+                    (Vector3.up * Mathf.Cos(timeTraking * m_mulutipliers[1])) +
+                    (Vector3.back * Mathf.Cos(timeTraking * m_mulutipliers[2])) +
+                    (Vector3.right * Mathf.Sin(timeTraking * m_mulutipliers[3])));
 
-            if (Vector3.Distance(newPoints[newPoints.Count - 1], newPoints[0]) < 1 && newPoints.Count > 200)
+                m_lr.positionCount = newPoints.Count;
+                m_lr.SetPositions(newPoints.ToArray());
+            }
+            if (Vector3.Distance(newPoints[newPoints.Count - 1], newPoints[0]) < 3 && newPoints.Count > 200)
                 gen = false;
-            /*if (newPoints.Count > 2500)
-                gen = false;*/
+            if (newPoints.Count > 1500)
+                gen = false;
 
             if (name != "copy")
             {
+                if (gen)
+                    camIndex = newPoints.Count - 1;
+                else
+                    camIndex += 1;
+
+                if (camIndex > newPoints.Count - 1)
+                    camIndex -= newPoints.Count;
+
                 Camera.main.transform.position = Vector3.Lerp(
-                    Camera.main.transform.position, newPoints[newPoints.Count - 1] +
+                    Camera.main.transform.position, newPoints[camIndex] +
                     (Vector3.back * Mathf.Cos(Time.time) * 5) +
                     (Vector3.left * Mathf.Sin(Time.time) * 5), 
-                    Time.deltaTime * 5);
+                    Time.deltaTime * 2);
 
-                //Camera.main.transform.position = newPoints[newPoints.Count - 1];
                 transform.position = Camera.main.transform.position;
                 if (newPoints.Count > 6)
-                    transform.LookAt(newPoints[newPoints.Count - 5]);
+                    transform.LookAt(newPoints[camIndex > 4 ? camIndex - 5 : camIndex - 5 + newPoints.Count]);
                 Camera.main.transform.rotation = Quaternion.LerpUnclamped(Camera.main.transform.rotation, transform.rotation, Time.deltaTime * 3);
             }
-            m_lr.positionCount = newPoints.Count;
-            m_lr.SetPositions(newPoints.ToArray());
 
             yield return new WaitForEndOfFrame();
         }

@@ -417,7 +417,11 @@ MonoBehaviour:
   m_cubeMesh: {fileID: 33130018610830714}
   m_flag: {fileID: 1330574895641422}
   m_roadRenderer: {fileID: 23647113596414298}
+  m_barrierRendererA: {fileID: 23096999815924400}
+  m_barrierRendererB: {fileID: 23651107183848778}
+  m_cubeRenderer: {fileID: 23041824312524008}
   finishMaterial: {fileID: 2100000, guid: f0bc098dd0628e9489a28caf4778fdba, type: 2}
+  width: 1
   NextSection: {fileID: 0}
   m_extrusionDistance: 2
   m_roadMatrix:
