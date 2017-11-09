@@ -4,21 +4,29 @@ using UnityEngine;
 
 public class MeshExtruder : MonoBehaviour
 {
+    [Header("Mesh referneces")]
     [SerializeField]
-    MeshFilter m_roadMesh, m_barrierMeshA, m_barrierMeshB, m_cubeMesh;
-    public GameObject m_flag;
-    public MeshRenderer m_roadRenderer, m_barrierRendererA, m_barrierRendererB, m_cubeRenderer;
+    MeshFilter m_roadMesh;
+    [SerializeField]
+    MeshFilter m_barrierMeshA, m_barrierMeshB, m_lowerMesh, m_lapTriggerMesh;
+    [Header("Renderer referneces")]
+    public MeshRenderer m_roadRenderer;
+    public MeshRenderer m_barrierRendererA, m_barrierRendererB, m_lowerRenderer;
+
+    [Header("Other referneces")]
     [SerializeField]
     Material finishMaterial;
-
-    public float width = 1;
-
+    public GameObject m_flag;
+    public LapTrigger m_lt;
     public MeshExtruder NextSection;
+    [HideInInspector]
+    public Matrix4x4 m_roadMatrix, m_barrierAMatrix, m_barrierBMatrix, m_lowerMatrix, m_lapTriggerMatrix;
+    [HideInInspector]
+    public Vector3[] m_roadVertsWS, m_barrierAVertsWS, m_barrierBVertsWS, m_lowerVertsWS, m_lapTriggerVertWS;
+
+    [Header("Settings")]
+    public float width = 1;
     public float m_extrusionDistance;
-    [HideInInspector]
-    public Matrix4x4 m_roadMatrix, m_barrierAMatrix, m_barrierBMatrix, m_cubeMatrix;
-    [HideInInspector]
-    public Vector3[] m_roadVertsWS, m_barrierAVertsWS, m_barrierBVertsWS, m_cubeVertsWS;
 
     // Use this for initialization
     void Start()
@@ -26,7 +34,8 @@ public class MeshExtruder : MonoBehaviour
         m_roadMatrix = Matrix4x4.TRS(m_roadMesh.transform.position, m_roadMesh.transform.rotation, m_roadMesh.transform.lossyScale);
         m_barrierAMatrix = Matrix4x4.TRS(m_barrierMeshA.transform.position, m_barrierMeshA.transform.rotation, m_barrierMeshA.transform.lossyScale);
         m_barrierBMatrix = Matrix4x4.TRS(m_barrierMeshB.transform.position, m_barrierMeshB.transform.rotation, m_barrierMeshB.transform.lossyScale);
-        m_cubeMatrix = Matrix4x4.TRS(m_cubeMesh.transform.position, m_cubeMesh.transform.rotation, m_cubeMesh.transform.lossyScale);
+        m_lowerMatrix = Matrix4x4.TRS(m_lowerMesh.transform.position, m_lowerMesh.transform.rotation, m_lowerMesh.transform.lossyScale);
+        m_lapTriggerMatrix = Matrix4x4.TRS(m_lapTriggerMesh.transform.position, m_lapTriggerMesh.transform.rotation, m_lapTriggerMesh.transform.lossyScale);
 
         StretchRoadMesh();
 
@@ -51,18 +60,18 @@ public class MeshExtruder : MonoBehaviour
     void DoTheLowerBit()
     {
         Vector3[] verts;
-        verts = m_cubeMesh.mesh.vertices;
-        m_cubeVertsWS = verts;
+        verts = m_lowerMesh.mesh.vertices;
+        m_lowerVertsWS = verts;
 
         #region -y
         {
             #region -z
             //  +x
-            verts[0] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[2]) + (Vector3.right * 3)
+            verts[0] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[2]) + (Vector3.right * 3)
             + (Vector3.back * 10);
 
             //  -x
-            verts[4] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[3]) + (Vector3.left * 3)
+            verts[4] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[3]) + (Vector3.left * 3)
             + (Vector3.back * 10);
             #endregion
         }
@@ -70,12 +79,12 @@ public class MeshExtruder : MonoBehaviour
         {
             #region z=0
             //    +x
-            verts[1] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[0]) + (Vector3.right * 3)
-            + (Vector3.back * 10);
+            verts[1] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[0]) + (Vector3.right * 3)
+            + (Vector3.back * 10 * width);
 
             //    -x
-            verts[5] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[1]) + (Vector3.left * 3)
-            + (Vector3.back * 10);
+            verts[5] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[1]) + (Vector3.left * 3)
+            + (Vector3.back * 10 * width);
             #endregion
         }
         #endregion
@@ -85,36 +94,36 @@ public class MeshExtruder : MonoBehaviour
         {
             #region -z
             //    +x
-            verts[2] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[2]) + (Vector3.right * 0.2f);
+            verts[2] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[2]) + (Vector3.right * 0.2f);
 
             //    -x
-            verts[6] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[3]) + (Vector3.left * 0.2f);
+            verts[6] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[3]) + (Vector3.left * 0.2f);
             #endregion
         }
         {
             #region z=0
             //    +x
-            verts[3] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[0]) + (Vector3.right * 0.2f);
+            verts[3] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[0]) + (Vector3.right * 0.2f);
 
             //    -x
-            verts[7] = m_cubeMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[1]) + (Vector3.left * 0.2f);
+            verts[7] = m_lowerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[1]) + (Vector3.left * 0.2f);
             #endregion
         }
         #endregion
 
-        verts[0].z = m_cubeMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
-        verts[1].z = m_cubeMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
-        verts[4].z = m_cubeMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
-        verts[5].z = m_cubeMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
+        verts[0].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
+        verts[1].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
+        verts[4].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
+        verts[5].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
 
-        m_cubeMesh.mesh.SetVertices(new List<Vector3>(verts));
-        m_cubeMesh.mesh.RecalculateNormals();
-        m_cubeMesh.mesh.RecalculateBounds();
-        m_cubeMesh.mesh.RecalculateTangents();
+        m_lowerMesh.mesh.SetVertices(new List<Vector3>(verts));
+        m_lowerMesh.mesh.RecalculateNormals();
+        m_lowerMesh.mesh.RecalculateBounds();
+        m_lowerMesh.mesh.RecalculateTangents();
 
         for (int i = 0; i < verts.Length; i++)
         {
-            m_cubeVertsWS[i] = m_cubeMatrix.MultiplyPoint3x4(verts[i]);
+            m_lowerVertsWS[i] = m_lowerMatrix.MultiplyPoint3x4(verts[i]);
         }
     }
 
@@ -182,17 +191,17 @@ public class MeshExtruder : MonoBehaviour
     void JoinLowerMesh()
     {
         Vector3[] verts;
-        verts = m_cubeMesh.mesh.vertices;
+        verts = m_lowerMesh.mesh.vertices;
 
-        verts[1] = m_cubeMatrix.inverse.MultiplyPoint3x4(NextSection.m_cubeVertsWS[0]);
-        verts[3] = m_cubeMatrix.inverse.MultiplyPoint3x4(NextSection.m_cubeVertsWS[2]);
-        verts[5] = m_cubeMatrix.inverse.MultiplyPoint3x4(NextSection.m_cubeVertsWS[4]);
-        verts[7] = m_cubeMatrix.inverse.MultiplyPoint3x4(NextSection.m_cubeVertsWS[6]);
+        verts[1] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[0]);
+        verts[3] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[2]);
+        verts[5] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[4]);
+        verts[7] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[6]);
 
-        m_cubeMesh.mesh.SetVertices(new List<Vector3>(verts));
-        m_cubeMesh.mesh.RecalculateNormals();
-        m_cubeMesh.mesh.RecalculateBounds();
-        m_cubeMesh.mesh.RecalculateTangents();
+        m_lowerMesh.mesh.SetVertices(new List<Vector3>(verts));
+        m_lowerMesh.mesh.RecalculateNormals();
+        m_lowerMesh.mesh.RecalculateBounds();
+        m_lowerMesh.mesh.RecalculateTangents();
     }
 
     bool joined, lowerJoin = false;
@@ -206,6 +215,7 @@ public class MeshExtruder : MonoBehaviour
                 JoinRoadMesh();
                 JoinBarrierMesh();
                 GetRoadVertsInWorldSpace(m_roadMesh.mesh);
+                DeformLapTrigger();
                 DoTheLowerBit();
 
                 m_roadMesh.gameObject.AddComponent<MeshCollider>();
@@ -217,15 +227,112 @@ public class MeshExtruder : MonoBehaviour
         }
         if (!lowerJoin && NextSection)
         {
-            if (NextSection.m_cubeVertsWS.Length > 5)
+            if (NextSection.m_lowerVertsWS.Length > 5)
             {
-                if (NextSection.m_cubeVertsWS[6] != Vector3.zero && joined)
+                if (NextSection.m_lowerVertsWS[6] != Vector3.zero && joined)
                 {
                     JoinLowerMesh();
                     lowerJoin = true;
                 }
             }
         }
+    }
+
+    void DeformLapTrigger()
+    {
+        Vector3[] verts = m_lapTriggerMesh.mesh.vertices;
+
+        int[,] simpleVerts = new int[8, 3];
+
+        //Shit and fuck
+        #region Vertex index values
+        simpleVerts[0, 0] = 0;
+        simpleVerts[0, 1] = 13;
+        simpleVerts[0, 2] = 23;
+
+        simpleVerts[1, 0] = 1;
+        simpleVerts[1, 1] = 14;
+        simpleVerts[1, 2] = 16;
+
+
+        simpleVerts[2, 0] = 2;
+        simpleVerts[2, 1] = 8;
+        simpleVerts[2, 2] = 22;
+
+        simpleVerts[3, 0] = 3;
+        simpleVerts[3, 1] = 9;
+        simpleVerts[3, 2] = 17;
+
+        simpleVerts[4, 0] = 4;
+        simpleVerts[4, 1] = 10;
+        simpleVerts[4, 2] = 21;
+
+        simpleVerts[5, 0] = 5;
+        simpleVerts[5, 1] = 11;
+        simpleVerts[5, 2] = 18;
+
+        simpleVerts[6, 0] = 6;
+        simpleVerts[6, 1] = 12;
+        simpleVerts[6, 2] = 20;
+
+        simpleVerts[7, 0] = 7;
+        simpleVerts[7, 1] = 15;
+        simpleVerts[7, 2] = 19;
+        #endregion
+
+        for (int i = 0; i < simpleVerts.GetLength(0); i++)
+        {
+            for (int j = 0; j < simpleVerts.GetLength(1); j++)
+            {
+                verts[simpleVerts[i, j]] = Vector3.zero;
+                if (i < 5)
+                {
+                    //+z
+                    if (i % 2 == 0)
+                    {
+                        //+x
+                        verts[simpleVerts[i, j]] = m_lapTriggerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[0]);
+                        //0
+                    }
+                    else
+                    {
+                        //-x
+                        verts[simpleVerts[i, j]] = m_lapTriggerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[2]);
+                        //2
+                    }
+                }
+                else
+                {
+                    //-z;
+                    if (i % 2 == 0)
+                    {
+                        //+x
+                        verts[simpleVerts[i, j]] = m_lapTriggerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[1]);
+                        //1
+                    }
+                    else
+                    {
+                        //-x
+                        verts[simpleVerts[i, j]] = m_lapTriggerMatrix.inverse.MultiplyPoint3x4(m_roadVertsWS[3]);
+                        //3
+                    }
+                }
+
+                //Don't forget about these cheeky boys
+                if (i > 1 && i < 6)
+                {
+                    verts[simpleVerts[i, j]] += Vector3.forward * 5;
+                }
+            }
+        }
+
+        m_lapTriggerMesh.mesh.SetVertices(new List<Vector3>(verts));
+        m_lapTriggerMesh.mesh.RecalculateNormals();
+        m_lapTriggerMesh.mesh.RecalculateBounds();
+        m_lapTriggerMesh.mesh.RecalculateTangents();
+        MeshCollider mCol = m_lapTriggerMesh.gameObject.AddComponent<MeshCollider>();
+        mCol.convex = true;
+        mCol.isTrigger = true;
     }
 
     #region Extrusion

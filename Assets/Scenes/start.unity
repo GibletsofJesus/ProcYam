@@ -140,6 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_lr: {fileID: 1086973914}
+  CamFollow: 1
   m_mulutipliers:
   - 2
   - 2
@@ -171,7 +172,7 @@ GameObject:
   - component: {fileID: 137817189}
   - component: {fileID: 137817188}
   m_Layer: 5
-  m_Name: Text (2)
+  m_Name: Text template
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -223,8 +224,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: This background has nothing do with the actual game, I just think it looks
-    cool. The game itself is about cars n that.
+  m_Text: 
 --- !u!222 &137817190
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -323,6 +323,7 @@ GameObject:
   - component: {fileID: 430513830}
   - component: {fileID: 430513829}
   - component: {fileID: 430513833}
+  - component: {fileID: 430513834}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -401,7 +402,6 @@ RectTransform:
   - {fileID: 727777171}
   - {fileID: 137817191}
   - {fileID: 700736679}
-  - {fileID: 874752616}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -421,18 +421,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a544f6fc18efff4aa3c24dc456da449, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AssociatedUiScript: {fileID: 430513834}
   SampleMenuElement: {fileID: 137817187}
   DesiredMenuSize: 6
   options:
   - Quit
-  - Credits
   - Play game
+  - Credits
   ScrollSpeed: 0.15
   transitionSpeed: 0.15
   maxItemScale: {x: 1, y: 1, z: 1}
   minItemScale: {x: 0.5, y: 0.5, z: 0.25}
   elementOffset: {x: 0, y: 100}
-  offset: {x: 0, y: -250}
+  offset: {x: 0, y: -400}
   curve:
     serializedVersion: 2
     m_Curve:
@@ -454,6 +455,22 @@ MonoBehaviour:
   CenterColour: {r: 1, g: 1, b: 1, a: 1}
   EdgeColour: {r: 1, g: 1, b: 1, a: 0}
   menuIndex: 0
+  m_allowMove: 1
+  m_allowClick: 1
+--- !u!114 &430513834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 430513828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 746cc5214d3eaa841a615262ca2b8cf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_creditTexts:
+  - {fileID: 874752618}
+  m_creditsBackground: {fileID: 700736680}
 --- !u!1 &651788539
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,7 +577,8 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 874752616}
   m_Father: {fileID: 430513832}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -581,7 +599,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.5019608}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -613,7 +631,7 @@ GameObject:
   - component: {fileID: 727777173}
   - component: {fileID: 727777172}
   m_Layer: 5
-  m_Name: Text (1)
+  m_Name: Tagline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -626,7 +644,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 727777170}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 290, z: 0}
+  m_LocalPosition: {x: 0, y: 240, z: 0}
   m_LocalScale: {x: 1.0007792, y: 1.0007792, z: 1.0007792}
   m_Children: []
   m_Father: {fileID: 430513832}
@@ -634,7 +652,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -250}
+  m_AnchoredPosition: {x: 0, y: -300}
   m_SizeDelta: {x: 1884.5, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &727777172
@@ -688,7 +706,7 @@ GameObject:
   - component: {fileID: 789804633}
   - component: {fileID: 789804632}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -777,10 +795,10 @@ RectTransform:
   m_GameObject: {fileID: 874752615}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.0007792, y: 1.0007792, z: 1.0007792}
+  m_LocalScale: {x: 1.0007793, y: 1.0007793, z: 1.0007793}
   m_Children: []
-  m_Father: {fileID: 430513832}
-  m_RootOrder: 4
+  m_Father: {fileID: 700736679}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -813,7 +831,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -832,7 +850,7 @@ MonoBehaviour:
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
-    m_LineSpacing: 0.75
+    m_LineSpacing: 0.85
   m_Text: 'Programming
 
     <size=65>Craig Tinney

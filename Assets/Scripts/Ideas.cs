@@ -10,6 +10,7 @@ public class Ideas : MonoBehaviour
     //Let's say we have a line renderer...
     [SerializeField]
     LineRenderer m_lr;
+    public bool CamFollow = true;
 
     public  float[] m_mulutipliers;
     float[] m_oldMulutipliers = new float[4];
@@ -18,6 +19,14 @@ public class Ideas : MonoBehaviour
     void Start()
     {
         count++;
+
+        if (!CamFollow)
+        {
+            m_mulutipliers[0] = Random.Range(0.5f, 2f);
+            m_mulutipliers[2] = 2 *
+            m_mulutipliers[0];
+        }
+
         StartCoroutine(DoALine());
         for (int i = 0; i < m_mulutipliers.Length; i++)
         {
@@ -71,7 +80,7 @@ public class Ideas : MonoBehaviour
 
     IEnumerator DoALine()
     {
-        if (count < 10)
+        if (count < 0)
         {
             Ideas copy = Instantiate(this);
             for (int i = 0; i < copy.m_mulutipliers.Length; i++)
@@ -89,15 +98,21 @@ public class Ideas : MonoBehaviour
             List<Vector3> newPoints = new List<Vector3>(points);
             if (gen)
             {
-                timeTraking += Time.deltaTime * 0.5f;
+                timeTraking += Time.deltaTime;
                 //For each step, decide what direction to move the line along
 
-                newPoints.Add(points[points.Length - 1] +
-                    (Vector3.left * Mathf.Sin(timeTraking * m_mulutipliers[0])) +
-                    (Vector3.up * Mathf.Cos(timeTraking * m_mulutipliers[1])) +
-                    (Vector3.back * Mathf.Cos(timeTraking * m_mulutipliers[2])) +
-                    (Vector3.right * Mathf.Sin(timeTraking * m_mulutipliers[3])));
-
+                if (CamFollow)
+                    newPoints.Add(points[points.Length - 1] +
+                        (Vector3.left * Mathf.Sin(timeTraking * m_mulutipliers[0])) +
+                        (Vector3.up * Mathf.Cos(timeTraking * m_mulutipliers[1])) +
+                        (Vector3.back * Mathf.Cos(timeTraking * m_mulutipliers[2])) +
+                        (Vector3.right * Mathf.Sin(timeTraking * m_mulutipliers[3])));
+                else
+                    newPoints.Add(points[points.Length - 1] +
+                        (Vector3.left * Mathf.Sin(timeTraking * m_mulutipliers[0])) +
+                        (Vector3.up * timeTraking * m_mulutipliers[1]) +
+                        (Vector3.back * Mathf.Cos(timeTraking * m_mulutipliers[2])));
+                
                 m_lr.positionCount = newPoints.Count;
                 m_lr.SetPositions(newPoints.ToArray());
             }
@@ -106,7 +121,7 @@ public class Ideas : MonoBehaviour
             if (newPoints.Count > 1500)
                 gen = false;
 
-            if (name != "copy")
+            if (name != "copy" && CamFollow)
             {
                 if (gen)
                     camIndex = newPoints.Count - 1;

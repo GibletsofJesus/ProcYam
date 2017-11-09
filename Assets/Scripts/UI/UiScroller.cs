@@ -7,6 +7,10 @@ public class UiScroller : MonoBehaviour
 {
     [Header("Menu creation")]
     [SerializeField]
+    UIFunction AssociatedUiScript;
+
+    [Header("Menu creation")]
+    [SerializeField]
     GameObject SampleMenuElement;
     public int DesiredMenuSize;
     List<Text> TextElements = new List<Text>();
@@ -22,11 +26,20 @@ public class UiScroller : MonoBehaviour
     int menuIndex;
     private int midPoint;
 
+    [HideInInspector]
+    public bool m_allowMove = true, m_allowClick = true;
+
+    public void ToggleTextElements(bool b)
+    {
+        for (int i = 0; i < TextElements.Count; i++)
+        {
+            TextElements[i].enabled = b;
+        }
+    }
+
     // Use this for initialization
     void Start()
     {
-        //menuIndex = (((DesiredMenuSize - 1) / 2)) % options.Length;
-
         for (int i = 0; i < DesiredMenuSize; i++)
         {
             GameObject newText = Instantiate(SampleMenuElement) as GameObject;
@@ -38,6 +51,7 @@ public class UiScroller : MonoBehaviour
             TextElements[i].text = options[(menuIndex + i) % options.Length];
         }
         midPoint = (TextElements.Count - 1) / 2;
+        MenuScroll(0);
     }
 
     float moveCD;
@@ -45,23 +59,34 @@ public class UiScroller : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.W) && moveCD <= 0)
+        if (m_allowMove)
         {
-            moveCD = ScrollSpeed;
-            //If index less than 0, loop back to the top.
-            menuIndex = (menuIndex - 1) < 0 ? options.Length - 1 : menuIndex - 1;
-            MenuScroll(-1);
+            if (Input.GetAxis("Vertical") > 0.1f && moveCD <= 0)
+            {
+                moveCD = ScrollSpeed;
+                //If index less than 0, loop back to the top.
+                menuIndex = (menuIndex - 1) < 0 ? options.Length - 1 : menuIndex - 1;
+                MenuScroll(-1);
+            }
+            if (Input.GetAxis("Vertical") < -0.1f && moveCD <= 0)
+            {
+                moveCD = ScrollSpeed;
+                //If index larger than max, go to 0.
+                menuIndex = (menuIndex + 1) > options.Length - 1 ? 0 : menuIndex + 1;
+                MenuScroll(1);
+            }
         }
-        if (Input.GetKey(KeyCode.S) && moveCD <= 0)
+        if (m_allowClick)
         {
-            moveCD = ScrollSpeed;
-            //If index larger than max, go to 0.
-            menuIndex = (menuIndex + 1) > options.Length - 1 ? 0 : menuIndex + 1;
-            MenuScroll(1);
+            if ((Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump")) && moveCD <= 0)
+                AssociatedUiScript.CallFunction(menuIndex, this);
+            
         }
 
         moveCD = moveCD > 0 ? moveCD - Time.deltaTime : 0;
     }
+
+    #region Item move / colour lerping
 
     void MenuScroll(int direction)
     {
@@ -119,7 +144,6 @@ public class UiScroller : MonoBehaviour
             #region scale items
             if (i == midPoint)
             {
-                Debug.Log(TextElements[i].text);
                 StartCoroutine(ScaleItem(TextElements[i], maxItemScale, transitionSpeed * 1.25f, curve));
             }
             else
@@ -203,4 +227,6 @@ public class UiScroller : MonoBehaviour
     {
         return A + (B - A) * t;
     }
+
+    #endregion
 }

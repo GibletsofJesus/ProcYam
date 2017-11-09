@@ -49,15 +49,29 @@ public class TrackMaker : MonoBehaviour
 
         Vector3[] points = new Vector3[ m_lr.positionCount];
         m_lr.GetPositions(points);
+
+        //Get line distance and such
+        float distance = 0;
+        float[] distanceAtIndex = new float[points.Length];
+        distanceAtIndex[0] = 0;
+        for (int i = 0; i < points.Length - 1; i++)
+        {
+            distance += Vector3.Distance(points[i], points[i + 1]);
+            distanceAtIndex[i + 1] = distance;
+        }
+
         for (int i = 1; i < m_lr.positionCount; i++)
         {
             Vector3 pointVector = points[i] - points[GetCorrectedPoint(i - 1, points)];
             float angle = Mathf.Atan2(pointVector.x, pointVector.z) * Mathf.Rad2Deg;
 
+
             MeshExtruder newME = Instantiate(m_roadPrefab, points[i], Quaternion.Euler(-90, 0, angle), transform);
-            newME.width = 1 + Mathf.Sin(
-                (2f * 4f * Mathf.PI)
-                * ((float)i / (float)m_lr.positionCount));
+            newME.width = 2 + (Mathf.Sin(
+                (2f * 5f * Mathf.PI)
+                * (distanceAtIndex[i] / distance)));
+            
+            newME.m_lt.index = i - 1;
 
             if (roadSections.Count > 0)
                 roadSections[roadSections.Count - 1].NextSection = newME;
@@ -69,9 +83,10 @@ public class TrackMaker : MonoBehaviour
 
         RandomiseColours(Random.value);
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(.2f);
         roadSections[roadSections.Count - 1].AddFinishLineTexture();
 
+        roadSections[0].m_flag.transform.localScale = Vector3.one * roadSections[0].width;
         roadSections[0].m_flag.SetActive(true);
 
         transform.localScale = Vector3.one * 5;
@@ -84,13 +99,14 @@ public class TrackMaker : MonoBehaviour
 
     public  void RandomiseColours(float r)
     {
+        floor.val = r;
         for (int i = 0; i < roadSections.Count - 2; i++)
         {
             MeshExtruder m = roadSections[i];
-            RandomiseRendererColour(m.m_roadRenderer, r);
+            //RandomiseRendererColour(m.m_roadRenderer, r);
             RandomiseRendererColour(m.m_barrierRendererA, r);
             RandomiseRendererColour(m.m_barrierRendererB, r);
-            RandomiseRendererColour(m.m_cubeRenderer, r);
+            RandomiseRendererColour(m.m_lowerRenderer, r);
         }
     }
 
