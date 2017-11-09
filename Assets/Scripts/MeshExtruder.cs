@@ -131,7 +131,6 @@ public class MeshExtruder : MonoBehaviour
     {
         Vector3[] verts;
         verts = m_roadMesh.mesh.vertices;
-
         verts[0] = m_roadMatrix.inverse.MultiplyPoint3x4(NextSection.m_roadVertsWS[2]);
         verts[1] = m_roadMatrix.inverse.MultiplyPoint3x4(NextSection.m_roadVertsWS[3]);
 
