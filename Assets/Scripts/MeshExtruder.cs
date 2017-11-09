@@ -77,9 +77,6 @@ public class MeshExtruder : MonoBehaviour
         };
         #endregion
         #region Barrier
-
-        Debug.Log(m_barrierMeshA.mesh.vertices);
-
         Mesh new_barrierMesh = new Mesh();
         new_barrierMesh.vertices = new Vector3[]
         {

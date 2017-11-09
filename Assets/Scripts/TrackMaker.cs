@@ -168,7 +168,7 @@ public class TrackMaker : MonoBehaviour
 
     void RandomiseRendererColour(MeshRenderer _renderer, float r)
     {
-        Texture2D tex = _renderer.material.mainTexture as Texture2D;
+        /*Texture2D tex = _renderer.material.mainTexture as Texture2D;
         //Texture2D tex = new Texture2D(original.width, original.height);
         //tex.filterMode = FilterMode.Point;
 
@@ -185,7 +185,7 @@ public class TrackMaker : MonoBehaviour
             } 
         }
         tex.Apply();
-        _renderer.material.mainTexture = tex;
+        _renderer.material.mainTexture = tex;*/
     }
 
     #endregion
