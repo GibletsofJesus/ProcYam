@@ -198,6 +198,8 @@ public class TrackMaker : MonoBehaviour
 
         m_lr.positionCount = curvedPoints.Length;// + 1;
         m_lr.SetPositions(curvedPoints);
+
+        StartCoroutine(CreateTrackMesh());
     }
 
     List<Vector3> ScatterMidPoints(List<Vector3> newPoints)
@@ -314,7 +316,6 @@ public class TrackMakerEditorButtons :Editor
         if (GUILayout.Button("Gen track"))
         {
             it.GenerateTrack();
-            it.StartCoroutine(it.CreateTrackMesh());
         }
         if (GUILayout.Button("Randomise colours"))
         {

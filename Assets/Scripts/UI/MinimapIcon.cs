@@ -8,10 +8,12 @@ public class MinimapIcon : MonoBehaviour
     Transform followMe;
     [SerializeField]
     float yPos = 0;
-    // Update is called once per frame
+    [SerializeField]
+    SpriteRenderer m_spriteRenderer;
 
     void Update()
     {
+        m_spriteRenderer.enabled = GameStateManager.instance.m_currentState != GameStateManager.GameSate.GameOver;
         transform.rotation = Quaternion.Euler(90, 0, 0);
         Vector3 newPos = followMe.position;
         newPos.y = yPos;

@@ -1,16 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class GameplayUI : MonoBehaviour {
+public class GameplayUI : UIFunction
+{
+    [SerializeField]
+    Text m_lapCounter;
+    int laps = 0;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public override void CallFunction(int _index, UiScroller _ref)
+    {
+        
+    }
+
+    public void NextLap()
+    {
+        laps++;
+        m_lapCounter.text = laps + "/3";
+    }
+
+    void Update()
+    {
+ 
+    }
 }
