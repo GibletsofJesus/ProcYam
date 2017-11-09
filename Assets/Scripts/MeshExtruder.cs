@@ -31,6 +31,8 @@ public class MeshExtruder : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        SetupMeshes();
+
         m_roadMatrix = Matrix4x4.TRS(m_roadMesh.transform.position, m_roadMesh.transform.rotation, m_roadMesh.transform.lossyScale);
         m_barrierAMatrix = Matrix4x4.TRS(m_barrierMeshA.transform.position, m_barrierMeshA.transform.rotation, m_barrierMeshA.transform.lossyScale);
         m_barrierBMatrix = Matrix4x4.TRS(m_barrierMeshB.transform.position, m_barrierMeshB.transform.rotation, m_barrierMeshB.transform.lossyScale);
@@ -48,6 +50,128 @@ public class MeshExtruder : MonoBehaviour
         m_extrusionDistance = Vector3.Distance(m_roadMesh.mesh.vertices[2], m_roadMatrix.inverse.MultiplyPoint3x4(NextSection.m_roadVertsWS[2]));
 
         m_roadRenderer.material.mainTextureScale = new Vector2(1, (1 / m_extrusionDistance) * 25);
+    }
+
+    void SetupMeshes()
+    {
+        #region Road
+        Mesh new_roadMesh = new Mesh();
+        new_roadMesh.vertices = new Vector3[]
+        {
+            new Vector3(1, 1, 0),
+            new Vector3(-1, -1, 0),
+            new Vector3(1, 1, 0),
+            new Vector3(-1, 1, 0),
+        };
+        new_roadMesh.triangles = new int[]
+        {
+            0, 2, 3,
+            0, 3, 1
+        };
+        new_roadMesh.uv = new Vector2[]
+        {
+            new Vector2(0, 0),
+            new Vector2(1, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1)
+        };
+        #endregion
+        #region Barrier
+
+        Debug.Log(m_barrierMeshA.mesh.vertices);
+
+        Mesh new_barrierMesh = new Mesh();
+        new_barrierMesh.vertices = new Vector3[]
+        {
+            new Vector3(0.1f, -1, -.2f),
+            new Vector3(0.1f, 1, -.2f),
+            new Vector3(-0.1f, -1, -.2f),
+            new Vector3(-0.1f, -1, .2f),
+            new Vector3(-0.1f, 1, -.2f),
+            new Vector3(-0.1f, 1, .2f),
+            new Vector3(0.1f, -1, .1f),
+            new Vector3(0.1f, 1, .1f),
+            new Vector3(0.1f, 1, .2f),
+            new Vector3(0.1f, -1, .2f),
+            new Vector3(-0.1f, -1, .2f),
+            new Vector3(-0.1f, 1, .2f),
+            new Vector3(0f, 1, .2f),
+            new Vector3(0f, -1, .2f),
+            new Vector3(0.1f, 1, .1f),
+            new Vector3(0.1f, -1, .1f)
+        };
+        new_barrierMesh.triangles = new int[]
+        {
+            8, 5, 3,
+            8, 3, 9,
+            10, 11, 4,
+            10, 4, 2,
+            12, 13, 6,
+            12, 6, 7,
+            14, 15, 0,
+            14, 0, 1
+        };
+        new_barrierMesh.uv = new Vector2[]
+        {
+            new Vector2(1, 0),
+            new Vector2(0, 0),
+            new Vector2(1, 1),
+            new Vector2(1, .6f),
+            new Vector2(0, 1),
+            new Vector2(0, .6f),
+            new Vector2(1, .3f),
+            new Vector2(0, .3f),
+            new Vector2(0, .5f),
+            new Vector2(1, .5f),
+            new Vector2(1, .6f),
+            new Vector2(0, .6f),
+            new Vector2(0, .5f),
+            new Vector2(1, .5f),
+            new Vector2(0, .3f),
+            new Vector2(1, .3f)
+        };        
+        #endregion
+        #region lower
+        Mesh new_lowerMesh = new Mesh();
+        new_lowerMesh.vertices = new Vector3[]
+        {
+            new Vector3(1.2f, -1, -2),
+            new Vector3(1.2f, -1, 0),
+            new Vector3(1.2f, 1, -2),
+            new Vector3(1.2f, 1, 0),
+            new Vector3(-1.2f, -1, -2),
+            new Vector3(-1.2f, -1, 0),
+            new Vector3(-1.2f, 1, -2),
+            new Vector3(-1.2f, 1, 0),
+
+
+            new Vector3(1.2f, -2, -2),
+            new Vector3(1.2f, -2, 0),
+            new Vector3(1.2f, -1, -2),
+            new Vector3(1.2f, -1, 0),
+            new Vector3(-1.2f, -2, -2),
+            new Vector3(-1.2f, -2, 0),
+            new Vector3(-1.2f, -1, -2),
+            new Vector3(-1.2f, -1, 0),
+        };
+        new_lowerMesh.triangles = new int[]
+        {
+            1, 0, 2,
+            1, 2, 3,
+            7, 6, 4,
+            7, 4, 5,
+
+            9, 8, 10,
+            9, 10, 11,
+            15, 14, 12,
+            15, 12, 13
+        };
+        #endregion
+
+        m_roadMesh.mesh = new_roadMesh;
+        m_barrierMeshA.mesh = new_barrierMesh;
+        m_barrierMeshB.mesh = new_barrierMesh;
+        m_lowerMesh.mesh = new_lowerMesh;
     }
 
     public void AddFinishLineTexture()
@@ -111,10 +235,31 @@ public class MeshExtruder : MonoBehaviour
         }
         #endregion
 
-        verts[0].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
-        verts[1].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
-        verts[4].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
-        verts[5].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 15f).z;
+        verts[0].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 12f).z;
+        verts[1].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 12f).z;
+        verts[4].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 12f).z;
+        verts[5].z = m_lowerMatrix.inverse.MultiplyPoint3x4(Vector3.down * 12f).z;
+
+        verts[10] = verts[0];
+        verts[11] = verts[1];
+        verts[14] = verts[4];
+        verts[15] = verts[5];
+
+        verts[8] = verts[0] +
+        (Vector3.right * 5f) +
+        (Vector3.back * 3f);
+        verts[9] = verts[1] +
+        (Vector3.right * 5f) +
+        (Vector3.back * 3f);
+        verts[12] = verts[4] +
+        (Vector3.left * 5f) +
+        (Vector3.back * 3f);          
+        verts[13] = verts[5] +
+        (Vector3.left * 5f) +
+        (Vector3.back * 3f);
+         
+        
+
 
         m_lowerMesh.mesh.SetVertices(new List<Vector3>(verts));
         m_lowerMesh.mesh.RecalculateNormals();
@@ -196,6 +341,11 @@ public class MeshExtruder : MonoBehaviour
         verts[3] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[2]);
         verts[5] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[4]);
         verts[7] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[6]);
+
+        verts[9] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[8]);
+        verts[11] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[10]);
+        verts[13] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[12]);
+        verts[15] = m_lowerMatrix.inverse.MultiplyPoint3x4(NextSection.m_lowerVertsWS[14]);
 
         m_lowerMesh.mesh.SetVertices(new List<Vector3>(verts));
         m_lowerMesh.mesh.RecalculateNormals();
