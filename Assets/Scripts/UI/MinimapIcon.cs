@@ -13,7 +13,9 @@ public class MinimapIcon : MonoBehaviour
 
     void Update()
     {
-        m_spriteRenderer.enabled = GameStateManager.instance.m_currentState != GameStateManager.GameSate.GameOver;
+        m_spriteRenderer.enabled = GameStateManager.instance.m_currentState == GameStateManager.GameSate.Gameplay
+        || GameStateManager.instance.m_currentState == GameStateManager.GameSate.Paused;
+        
         transform.rotation = Quaternion.Euler(90, 0, 0);
         Vector3 newPos = followMe.position;
         newPos.y = yPos;

@@ -8,6 +8,8 @@ using UnityEditor;
 
 public class TrackMaker : MonoBehaviour
 {
+    public static TrackMaker instance;
+
     //Let's say we have a line renderer...
     [SerializeField]
     LineRenderer m_lr, m_lr2;
@@ -30,8 +32,60 @@ public class TrackMaker : MonoBehaviour
     [SerializeField]
     MeshExtruder m_roadPrefab;
 
+    #region UI functionality
+
+    [Header("UI References")]
+    [SerializeField]UnityEngine.UI.Text t_noise, t_noiseIterations, t_smoothness, t_height, t_heightFreq;
+
+    bool m_createLowerSections = true;
+
+    public void ToggleLowerSections(bool b)
+    {
+        m_createLowerSections = b;
+    }
+
+    public void ChangeNoise(float _f)
+    {
+        t_noise.text = _f.ToString("##.#");
+        noise = _f;
+    }
+
+    public void ChangeNoiseIterations(float _f)
+    {
+        t_noiseIterations.text = _f.ToString("##.#");
+        noiseIterations = (int)_f;
+    }
+
+    public void ChangeSmoothness(float _f)
+    {
+        t_smoothness.text = _f.ToString("##.#");
+        smoothness = (int)_f;
+    }
+
+    public void ChangeHeight(float _f)
+    {
+        t_height.text = _f.ToString("##.#");
+        m_verticalComp = _f;
+    }
+
+    public void ChangeHeightFreq(float _f)
+    {
+        t_heightFreq.text = _f.ToString("##.#");
+        m_verticalSinFrequency = _f;
+    }
+
+    #endregion
+
     void Start()
     {
+        instance = this;
+
+        ChangeHeight(m_verticalComp);
+        ChangeHeightFreq(m_verticalSinFrequency);
+        ChangeNoise(noise);
+        ChangeNoiseIterations(noiseIterations);
+        ChangeSmoothness(smoothness);
+
         GenerateTrack();
         StartCoroutine(CreateTrackMesh());
     }
@@ -72,6 +126,8 @@ public class TrackMaker : MonoBehaviour
                 * (distanceAtIndex[i] / distance)));
             
             newME.m_lt.index = i - 1;
+
+            newME.m_lowerRenderer.gameObject.SetActive(m_createLowerSections);
 
             if (roadSections.Count > 0)
                 roadSections[roadSections.Count - 1].NextSection = newME;
